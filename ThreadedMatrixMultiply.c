@@ -2,12 +2,14 @@
 #include <stdlib.h>
 #include <pthread.h>
 
-#define MATRIX_SIZE 3
+#define MATRIX_SIZE 5
 #define NUM_THREADS 3
 
 int matrixA[MATRIX_SIZE][MATRIX_SIZE];
 int matrixB[MATRIX_SIZE][MATRIX_SIZE];
 int resultMatrix[MATRIX_SIZE][MATRIX_SIZE];
+int calculationCount = 0;
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 typedef struct {
     int row;
@@ -16,10 +18,16 @@ typedef struct {
 
 void *multiply(void *arg) {
     thread_data_t *data = (thread_data_t *)arg;
+    int localCount = 0;
 
     for (int i = 0; i < MATRIX_SIZE; i++) {
         resultMatrix[data->row][data->col] += matrixA[data->row][i] * matrixB[i][data->col];
+        localCount++;
     }
+
+    pthread_mutex_lock(&mutex);
+    calculationCount += localCount;
+    pthread_mutex_unlock(&mutex);
 
     pthread_exit(NULL);
 }
@@ -63,6 +71,8 @@ int main() {
         }
         printf("\n");
     }
+
+    printf("The toal calulations were: %d\n", calculationCount);
 
     return 0;
 }
