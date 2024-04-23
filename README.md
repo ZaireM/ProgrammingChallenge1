@@ -1,4 +1,4 @@
-# ProgrammingChallenge1
+# Programming Challenge 1
 
 ## Type this into the directory to run the makefile
  make
